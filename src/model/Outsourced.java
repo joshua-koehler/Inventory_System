@@ -6,7 +6,7 @@
  * @author Joshua Koehler
  */
 
-package inventory;
+package model;
 
 public class Outsourced extends Part {
     protected String companyName;

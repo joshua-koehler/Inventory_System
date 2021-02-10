@@ -7,7 +7,7 @@
  * @author Joshua Koehler
  */
 
-package inventory;
+package model;
 
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;

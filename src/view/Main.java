@@ -1,6 +1,6 @@
-package gui;
+package view;
 
-import inventory.*;
+import model.*;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -12,10 +12,12 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        Parent root = FXMLLoader.load(getClass().getResource("InventoryManagementSystem.fxml"));
+        primaryStage.setTitle("Inventory Management System");
+        primaryStage.setScene(new Scene(root, 1200, 500));
         primaryStage.show();
+
+        // Add all navigation handlers
     }
 
     public static void main(String[] args) {
@@ -35,6 +37,6 @@ public class Main extends Application {
         System.out.println("inventory.lookupPart('part') = " + inventory.lookupPart("part2"));
         System.out.println("inventory.lookupPart('part') = " + inventory.lookupPart("partw"));
 
-        //launch(args);
+        launch(args);
     }
 }
