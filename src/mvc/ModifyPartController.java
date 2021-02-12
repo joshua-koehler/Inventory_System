@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class AddPartController {
+public class ModifyPartController {
     @FXML
     private TextField id, name, inv, price, max, min, machineOrCompanyField;
 
@@ -22,6 +22,59 @@ public class AddPartController {
 
     @FXML
     private RadioButton inHouse, outsourced;
+
+    private Part partToModify;
+    private int index;
+
+    public void setPartToModify(int index, Part partToModify) {
+        this.partToModify = partToModify;
+        this.index = index;
+        populateFields();
+    }
+
+    public void populateFields(){
+        id.setText(String.valueOf(partToModify.getId()));
+        name.setText(String.valueOf(partToModify.getName()));
+        inv.setText(String.valueOf(partToModify.getStock()));
+        price.setText(String.valueOf(partToModify.getPrice()));
+        max.setText(String.valueOf(partToModify.getMax()));
+        min.setText(String.valueOf(partToModify.getMin()));
+
+        if(partToModify.getClass() == InHouse.class){
+            InHouse inHousePart = (InHouse) partToModify;
+            machineOrCompanyField.setText(String.valueOf(inHousePart.getMachineId()));
+        }
+        else if(partToModify.getClass() == Outsourced.class){
+            Outsourced outsourcedPart = (Outsourced) partToModify;
+            machineOrCompanyField.setText(String.valueOf(outsourcedPart.getCompanyName()));
+        }
+        else {
+            System.out.println("Part to modify is of neither InHouse nor Outsourced.");
+        }
+    }
+
+    public void modifyPartAndNavigateToInventoryManagement(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("InventoryManagement.fxml"));
+        Parent inventoryManagementParent = loader.load();
+
+        InventoryManagementController inventoryManagementController = loader.getController();
+
+        partToModify = getPart();
+        if(partToModify == null) return; //error message will be displayed
+        inventoryManagementController.inventory.updatePart(index, partToModify);
+        inventoryManagementController.updatePartsTable();
+        //inventoryManagementController.updateProductsTable();
+
+        System.out.println("Switching to InventoryManagement");
+        System.out.println("InventoryManagementController.partsTable.getItems() = " + inventoryManagementController.partsTable.getItems());
+        Scene inventoryManagementScene = new Scene(inventoryManagementParent);
+
+        Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
+
+        window.setScene(inventoryManagementScene);
+        window.show();
+    }
 
     public void navigateToInventoryManagement(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
@@ -41,27 +94,6 @@ public class AddPartController {
 
         window.setScene(inventoryManagementScene);
         window.show();
-    }
-
-    public void savePart() throws IOException {
-        Part part = getPart();
-        if(part != null){//add to parts list
-            String msg = successLabel.getText();
-            successLabel.setText(msg + "Part created successfully\n");
-            storePart(part);
-        } else{
-            System.out.println("Invalid part");
-        }
-    }
-
-    public void storePart(Part part) throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("InventoryManagement.fxml"));
-        Parent inventoryManagementParent = loader.load();
-
-        InventoryManagementController inventoryManagementController = loader.getController();
-
-        inventoryManagementController.addPartToInventory(part);
     }
 
     public Part getPart(){

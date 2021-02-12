@@ -17,18 +17,20 @@ import javafx.collections.transformation.FilteredList;
 import java.util.function.Predicate;
 
 public class Inventory {
-    protected ObservableList<Part> allParts;
-    protected ObservableList<Product> allProducts;
+    private static ObservableList<Part> allParts = FXCollections.observableArrayList();
+    private static ObservableList<Product> allProducts = FXCollections.observableArrayList();
 
     public Inventory(){
-        this.allParts = new SimpleListProperty<Part>(FXCollections.observableArrayList());
-        this.allProducts = new SimpleListProperty<Product>(FXCollections.observableArrayList());
+        //this.allParts = FXCollections.observableArrayList();
+        //this.allProducts = FXCollections.observableArrayList();
+        //this.allParts = new SimpleListProperty<Part>(FXCollections.observableArrayList());
+        //this.allProducts = new SimpleListProperty<Product>(FXCollections.observableArrayList());
     }
     /**
      * @param part to add
      */
     public void addPart(Part part){
-        this.allParts.add(part);
+        this.allParts.addAll(part);
     }
 
     /**
@@ -63,8 +65,8 @@ public class Inventory {
      * @param updatedPart to replace part at current index
      */
     public void updatePart(int index, Part updatedPart){
-        allParts.remove(index);
-        allParts.add(index, updatedPart);
+        //allParts.remove(index);
+        allParts.set(index, updatedPart);
     }
 
     /**
