@@ -6,7 +6,7 @@
  * @author Joshua Koehler
  */
 
-package mvc.model;
+package mvc;
 
 public class InHouse extends Part {
     protected int machineId;

@@ -1,7 +1,6 @@
 package mvc;
 
 import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,38 +9,41 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
-import mvc.model.Inventory;
-import mvc.model.Part;
 
 import java.io.IOException;
 
 public class InventoryManagementController {
     @FXML
-    private TableColumn part_id_col, part_name_col, part_inventory_col, part_price_col,
+    private static TableColumn<Part, String> part_id_col, part_name_col, part_inventory_col, part_price_col,
                         prod_id_col, prod_name_col, prod_inventory_col, prod_price_col;
 
     @FXML
-    private TableView partsTable, productsTable;
+    private TableView<Part> partsTable = new TableView<Part>();
+    private TableView<Product> productsTable = new TableView<Product>();
 
     @FXML
     private static final Inventory inventory = new Inventory();
 
     public InventoryManagementController(){
-        //partsTable.setItems(inventory.getAllParts());
-       // productsTable.setItems(inventory.getAllProducts());
-        /*
-        part_id_col.setCellValueFactory(data ->
-                new SimpleStringProperty(data.getId()));
-        part_name_col.setCellValueFactory(data ->
-                new SimpleStringProperty(data.getName()));
-        part_inventory_col.setCellValueFactory(data ->
-                new SimpleStringProperty(data.getStock()));
-        part_price_col.setCellValueFactory(data ->
-                new SimpleStringProperty(data.getPrice()));
-                */
-    }
+        Part part1 = new InHouse(123, "part1", 23.23, 13, 1, 10, 1131);
+        inventory.addPart(part1);
 
+        part_id_col = new TableColumn<>("Part ID");
+        part_name_col = new TableColumn<>("Name");
+        part_inventory_col = new TableColumn<>("Inventory");
+        part_price_col = new TableColumn<>("Price/Cost");
+
+        part_id_col.setCellValueFactory(new PropertyValueFactory<>("id"));
+        part_name_col.setCellValueFactory(new PropertyValueFactory<>("name"));
+        part_inventory_col.setCellValueFactory(new PropertyValueFactory<>("inventory"));
+        part_price_col.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        partsTable.getColumns().setAll(part_id_col, part_name_col, part_inventory_col, part_price_col);
+
+        // productsTable.setItems(inventory.getAllProducts());
+    }
     public void addPartToInventory(Part part){
         System.out.println("Part added");
         inventory.addPart(part);

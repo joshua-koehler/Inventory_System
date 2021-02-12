@@ -1,7 +1,5 @@
 package mvc;
 
-import mvc.model.*;
-
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -36,6 +34,7 @@ public class Main extends Application {
         System.out.println("inventory.lookupPart('part') = " + inventory.lookupPart("part1"));
         System.out.println("inventory.lookupPart('part') = " + inventory.lookupPart("part2"));
         System.out.println("inventory.lookupPart('part') = " + inventory.lookupPart("partw"));
+        System.out.println("Launching...");
 
         launch(args);
     }

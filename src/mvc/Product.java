@@ -6,7 +6,7 @@
  * @author Joshua Koehler
  */
 
-package mvc.model;
+package mvc;
 import javafx.collections.ObservableList;
 
 public class Product {

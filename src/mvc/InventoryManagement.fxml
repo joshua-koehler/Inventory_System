@@ -8,18 +8,35 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <AnchorPane prefHeight="500.0" prefWidth="1200.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171" fx:controller="mvc.InventoryManagementController">
    <children>
       <AnchorPane layoutX="20.0" layoutY="100.0" prefHeight="300.0" prefWidth="550.0">
          <children>
             <TextField layoutX="289.0" layoutY="14.0" prefHeight="26.0" prefWidth="232.0" promptText="Search by Part ID or Name" />
             <TableView fx:id="partsTable" layoutX="25.0" layoutY="50.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="500.0">
-              <columns>
-                <TableColumn fx:id="part_id_col" prefWidth="96.0" text="Product ID" />
-                <TableColumn fx:id="part_name_col" prefWidth="113.0" text="Product Name" />
-                  <TableColumn fx:id="part_inventory_col" prefWidth="123.0" text="Inventory Level" />
-                  <TableColumn fx:id="part_price_col" prefWidth="166.0" text="Price/Cost per unit" />
-              </columns>
+               <columns>
+                  <TableColumn fx:id="part_id_col" prefWidth="96.0" text="Part ID">
+                     <cellValueFactory>
+                        <PropertyValueFactory property="id"/>
+                     </cellValueFactory>
+                  </TableColumn>
+                  <TableColumn fx:id="part_name_col" prefWidth="113.0" text="Part Name">
+                     <cellValueFactory>
+                        <PropertyValueFactory property="name"/>
+                     </cellValueFactory>
+                  </TableColumn>
+                  <TableColumn fx:id="part_inventory_col" prefWidth="123.0" text="Inventory Level">
+                     <cellValueFactory>
+                        <PropertyValueFactory property="stock"/>
+                     </cellValueFactory>
+                  </TableColumn>
+                  <TableColumn fx:id="part_price_col" prefWidth="166.0" text="Price/Cost per unit">
+                     <cellValueFactory>
+                        <PropertyValueFactory property="price"/>
+                     </cellValueFactory>
+                  </TableColumn>
+               </columns>
             </TableView>
             <Label layoutX="38.0" layoutY="27.0" text="Parts">
                <font>
@@ -35,10 +52,26 @@
             <TextField layoutX="289.0" layoutY="14.0" prefHeight="26.0" prefWidth="232.0" promptText="Search by Product ID or Name" />
             <TableView fx:id="productsTable" layoutX="25.0" layoutY="50.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="500.0">
                <columns>
-                  <TableColumn fx:id="prod_id_col" prefWidth="96.0" text="Product ID" />
-                  <TableColumn fx:id="prod_name_col" prefWidth="113.0" text="Product Name" />
-                  <TableColumn fx:id="prod_inventory_col" prefWidth="123.0" text="Inventory Level" />
-                  <TableColumn fx:id="prod_price_col" prefWidth="166.0" text="Price/Cost per unit" />
+                  <TableColumn fx:id="prod_id_col" prefWidth="96.0" text="Product ID">
+                     <cellValueFactory>
+                        <PropertyValueFactory property="id"/>
+                     </cellValueFactory>
+                  </TableColumn>
+                  <TableColumn fx:id="prod_name_col" prefWidth="113.0" text="Product Name">
+                     <cellValueFactory>
+                        <PropertyValueFactory property="name"/>
+                     </cellValueFactory>
+                  </TableColumn>
+                  <TableColumn fx:id="prod_inventory_col" prefWidth="123.0" text="Inventory Level">
+                     <cellValueFactory>
+                        <PropertyValueFactory property="stock"/>
+                     </cellValueFactory>
+                  </TableColumn>
+                  <TableColumn fx:id="prod_price_col" prefWidth="166.0" text="Price/Cost per unit">
+                     <cellValueFactory>
+                        <PropertyValueFactory property="price"/>
+                     </cellValueFactory>
+                  </TableColumn>
                </columns>
             </TableView>
             <Label layoutX="38.0" layoutY="27.0" text="Products">

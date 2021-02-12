@@ -6,7 +6,7 @@
  * @author Joshua Koehler
  */
 
-package mvc.model;
+package mvc;
 
 public class Outsourced extends Part {
     protected String companyName;

@@ -7,7 +7,7 @@
  * @author Joshua Koehler
  */
 
-package mvc.model;
+package mvc;
 
 public abstract class Part {
     private int id;

@@ -11,8 +11,6 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import mvc.model.*;
-
 import java.io.IOException;
 
 public class AddPartController {
