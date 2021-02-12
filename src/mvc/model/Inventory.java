@@ -7,7 +7,7 @@
  * @author Joshua Koehler
  */
 
-package model;
+package mvc.model;
 
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;

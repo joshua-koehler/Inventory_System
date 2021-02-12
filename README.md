@@ -1,2 +1,2 @@
 # Inventory System
-### An model system with accompanying GUI enabling CRUD operations with intelligent searching.
+### An mvc.model system with accompanying GUI enabling CRUD operations with intelligent searching.
