@@ -4,6 +4,8 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
@@ -25,6 +28,8 @@ public class InventoryManagementController {
 
     @FXML
     public TableView<Part> partsTable = new TableView<>();
+
+    @FXML
     public TableView<Product> productsTable = new TableView<>();
 
     @FXML
@@ -32,6 +37,12 @@ public class InventoryManagementController {
 
     @FXML
     private Label errorLabel;
+
+    @FXML
+    private TextField partSearch = new TextField();
+
+    @FXML
+    private TextField productSearch = new TextField();
 
     public InventoryManagementController(){
         part_id_col = new TableColumn<>("Part ID");
@@ -46,18 +57,17 @@ public class InventoryManagementController {
 
         partsTable.getColumns().setAll(part_id_col, part_name_col, part_inventory_col, part_price_col);
 
-        partsTable.setItems(inventory.getAllParts());
-        productsTable.setItems(inventory.getAllProducts());
     }
 
     public void addPartToInventory(Part part){
         System.out.println("Part added");
         inventory.addPart(part);
-        System.out.println(inventory.getAllParts());
+        System.out.println("Current parts list: " + inventory.getAllParts());
     }
 
     public void updatePartsTable(){
-        partsTable.setItems(inventory.getAllParts());
+        System.out.println("Update parts table called but commented out.");
+        //partsTable.setItems(inventory.getAllParts());
     }
 
     public void updateProductsTable(){
@@ -78,11 +88,12 @@ public class InventoryManagementController {
         window.show();
     }
 
+    @FXML
     public void navigateToModifyPart(ActionEvent event) throws IOException {
         ObservableList<Part> selectedParts, allParts;
         allParts = partsTable.getItems();
         selectedParts = partsTable.getSelectionModel().getSelectedItems();
-        if(selectedParts == null){
+        if(selectedParts.isEmpty()){
             errorLabel.setText("Please select a part to modify");
             return;
         }
@@ -113,14 +124,48 @@ public class InventoryManagementController {
         window.show();
     }
 
+    @FXML
+    public void initialize(){
+        FilteredList<Part> filteredData = new FilteredList<>(inventory.getAllParts(), p -> true);
+
+        // 2. Set the filter Predicate whenever the filter changes.
+        partSearch.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(myObject -> {
+                // If filter text is empty, display all persons.
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                // Compare first name and last name field in your object with filter.
+                String lowerCaseFilter = newValue.toLowerCase();
+
+                if (String.valueOf(myObject.getName()).toLowerCase().contains(lowerCaseFilter)) {
+                    return true;// Filter matches first name.
+
+                } else if (String.valueOf(myObject.getId()).toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                }
+
+                return false; // Does not match.
+            });
+        });
+
+        // 3. Wrap the FilteredList in a SortedList.
+        SortedList<Part> sortedData = new SortedList<>(filteredData);
+
+        // 4. Bind the SortedList comparator to the TableView comparator.
+        sortedData.comparatorProperty().bind(partsTable.comparatorProperty());
+        // 5. Add sorted (and filtered) data to the table.
+        partsTable.setItems(sortedData);
+    }
+
     public void deletePart(){
-        ObservableList<Part> selectedParts, allParts;
-        allParts = partsTable.getItems();
+        ObservableList<Part> selectedParts;
         selectedParts = partsTable.getSelectionModel().getSelectedItems();
 
-        try {
+        try{
             for (Part part : selectedParts) {
-                allParts.remove(part);
+                inventory.deletePart(part);
             }
         }
         catch(Exception e){
