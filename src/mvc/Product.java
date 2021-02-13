@@ -21,12 +21,6 @@ public class Product {
     private int max;
 
     public Product(int id, String name, double price, int stock, int min, int max) {
-        if(min > max)
-            System.out.println("WARNING: Min of " + min + " is greater than max of " + max);
-        if(stock < min)
-            System.out.println("stock:" + stock + " below min:" + min);
-        if(stock > max)
-            System.out.println("stock:" + stock + " exceeds max:" + max);
         this.id = id;
         this.name = name;
         this.price = price;

@@ -26,9 +26,6 @@ public class ModifyProductController {
     private Label errorLabel, successLabel;
 
     @FXML
-    private Button addPartButton , saveProductButton , cancelButton , removePart;
-
-    @FXML
     private static TableColumn<Part, String> part_id_col, part_name_col, part_inventory_col, part_price_col;
 
     @FXML
@@ -52,33 +49,8 @@ public class ModifyProductController {
         populateFields();
     }
 
-    public ModifyProductController(){
-        part_id_col = new TableColumn<>("Part ID");
-        part_name_col = new TableColumn<>("Name");
-        part_inventory_col = new TableColumn<>("Inventory");
-        part_price_col = new TableColumn<>("Price/Cost");
-
-        part_id_col.setCellValueFactory(new PropertyValueFactory<>("id"));
-        part_name_col.setCellValueFactory(new PropertyValueFactory<>("name"));
-        part_inventory_col.setCellValueFactory(new PropertyValueFactory<>("inventory"));//should be "stock" test to verify
-        part_price_col.setCellValueFactory(new PropertyValueFactory<>("price"));
-
-        partsTable.getColumns().setAll(part_id_col, part_name_col, part_inventory_col, part_price_col);
-
-        associated_part_id_col = new TableColumn<>("Part ID");
-        associated_part_name_col = new TableColumn<>("Name");
-        associated_part_inventory_col = new TableColumn<>("Inventory");
-        associated_part_price_col = new TableColumn<>("Price/Cost");
-
-        associated_part_id_col.setCellValueFactory(new PropertyValueFactory<>("id"));
-        associated_part_name_col.setCellValueFactory(new PropertyValueFactory<>("name"));
-        associated_part_inventory_col.setCellValueFactory(new PropertyValueFactory<>("inventory"));//should be "stock" test to verify
-        associated_part_price_col.setCellValueFactory(new PropertyValueFactory<>("price"));
-
-        associatedPartsTable.getColumns().setAll(associated_part_id_col, associated_part_name_col, associated_part_inventory_col, associated_part_price_col);
-    }
-
     public void populateFields() {
+        id.setDisable(true);
         id.setText(String.valueOf(productToModify.getId()));
         name.setText(String.valueOf(productToModify.getName()));
         inv.setText(String.valueOf(productToModify.getStock()));
@@ -101,8 +73,6 @@ public class ModifyProductController {
         inventoryManagementController.inventory.updateProduct(index, productToModify);
         inventoryManagementController.successLabel.setText("Product modified successfully");
 
-        System.out.println("Switching to InventoryManagement");
-        System.out.println("InventoryManagementController.productsTable.getItems() = " + inventoryManagementController.productsTable.getItems());
         Scene inventoryManagementScene = new Scene(inventoryManagementParent);
 
         Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
@@ -119,8 +89,6 @@ public class ModifyProductController {
 
         InventoryManagementController inventoryManagementController = loader.getController();
 
-        System.out.println("Switching to InventoryManagement");
-        System.out.println("InventoryManagementController.partsTable.getItems() = " + inventoryManagementController.partsTable.getItems());
         Scene inventoryManagementScene = new Scene(inventoryManagementParent);
 
         Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
@@ -133,18 +101,12 @@ public class ModifyProductController {
         StringBuilder sb = new StringBuilder();
         Product product = null;
         errorLabel.setText("");
-        int id_=0, stock_=0, max_=0, min_=0, machineID_=0;
-        String name_, companyName_;
+        int id_=0, stock_=0, max_=0, min_=0;
+        String name_;
         double price_=0.0;
 
         name_ = name.getText();
-        try {
-            id_ = Integer.parseInt(id.getText());
-            if(id_< 0) throw new NumberFormatException();
-        }
-        catch(NumberFormatException e) {
-            sb.append("ID must be a positive integer.\n");
-        }
+        id_ = productToModify.getId();
         try {
             stock_ = Integer.parseInt(inv.getText());
             if(stock_ < 0) throw new NumberFormatException();
@@ -173,9 +135,27 @@ public class ModifyProductController {
         catch(NumberFormatException e) {
             sb.append("Min must be a positive integer.\n");
         }
+        try{
+            if(stock_ > max_){
+                sb.append("Inventory cannot exceed max.\n");
+            }
+            if(stock_ < min_){
+                sb.append("Inventory cannot be less than min.\n");
+            }
+            if(min_ > max_){
+                sb.append("Min cannot be less than max.\n");
+            }
+        }
+        catch(NullPointerException e){
+            //do nothing - something earlier failed and is already handled.
+        }
+        catch(Exception e){
+            System.out.println("Exception caught " + e);
+        }
         errorLabel.setText(sb.toString());
         if(sb.toString().length() > 0){// remove success message after failure
             successLabel.setText("");
+            return null;
         }
         product = new Product(id_, name_, price_, stock_, min_, max_);
         for(Part part : associatedPartsList){
@@ -199,7 +179,7 @@ public class ModifyProductController {
             }
         }
         catch(Exception e){
-            System.out.println("I caught this: " + e);
+            System.out.println("Exception caught: " + e);
         }
 
         associatedPartsList.add(partToAdd);
@@ -220,7 +200,7 @@ public class ModifyProductController {
             }
         }
         catch(Exception e){
-            System.out.println("I caught this: " + e);
+            System.out.println("Exception caught: " + e);
         }
 
         associatedPartsList.remove(partToRemove);
@@ -228,6 +208,30 @@ public class ModifyProductController {
 
     @FXML
     public void initialize() {
+        part_id_col = new TableColumn<>("Part ID");
+        part_name_col = new TableColumn<>("Name");
+        part_inventory_col = new TableColumn<>("Inventory");
+        part_price_col = new TableColumn<>("Price/Cost");
+
+        part_id_col.setCellValueFactory(new PropertyValueFactory<>("id"));
+        part_name_col.setCellValueFactory(new PropertyValueFactory<>("name"));
+        part_inventory_col.setCellValueFactory(new PropertyValueFactory<>("stock"));
+        part_price_col.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        partsTable.getColumns().setAll(part_id_col, part_name_col, part_inventory_col, part_price_col);
+
+        associated_part_id_col = new TableColumn<>("Part ID");
+        associated_part_name_col = new TableColumn<>("Name");
+        associated_part_inventory_col = new TableColumn<>("Inventory");
+        associated_part_price_col = new TableColumn<>("Price/Cost");
+
+        associated_part_id_col.setCellValueFactory(new PropertyValueFactory<>("id"));
+        associated_part_name_col.setCellValueFactory(new PropertyValueFactory<>("name"));
+        associated_part_inventory_col.setCellValueFactory(new PropertyValueFactory<>("stock"));
+        associated_part_price_col.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        associatedPartsTable.getColumns().setAll(associated_part_id_col, associated_part_name_col, associated_part_inventory_col, associated_part_price_col);
+
         // 1. Initialize parts list
         FilteredList<Part> filteredData = new FilteredList<>(inventory.getAllParts(), p -> true);
 

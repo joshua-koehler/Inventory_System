@@ -26,9 +26,6 @@ public class AddProductController {
     private Label errorLabel, successLabel;
 
     @FXML
-    private Button addPartButton , saveProductButton , cancelButton , removePart;
-
-    @FXML
     private static TableColumn<Part, String> part_id_col, part_name_col, part_inventory_col, part_price_col;
 
     @FXML
@@ -51,7 +48,7 @@ public class AddProductController {
 
         part_id_col.setCellValueFactory(new PropertyValueFactory<>("id"));
         part_name_col.setCellValueFactory(new PropertyValueFactory<>("name"));
-        part_inventory_col.setCellValueFactory(new PropertyValueFactory<>("inventory"));//should be "stock" test to verify
+        part_inventory_col.setCellValueFactory(new PropertyValueFactory<>("stock"));
         part_price_col.setCellValueFactory(new PropertyValueFactory<>("price"));
 
         partsTable.getColumns().setAll(part_id_col, part_name_col, part_inventory_col, part_price_col);
@@ -63,7 +60,7 @@ public class AddProductController {
 
         associated_part_id_col.setCellValueFactory(new PropertyValueFactory<>("id"));
         associated_part_name_col.setCellValueFactory(new PropertyValueFactory<>("name"));
-        associated_part_inventory_col.setCellValueFactory(new PropertyValueFactory<>("inventory"));//should be "stock" test to verify
+        associated_part_inventory_col.setCellValueFactory(new PropertyValueFactory<>("stock"));
         associated_part_price_col.setCellValueFactory(new PropertyValueFactory<>("price"));
 
         associatedPartsTable.getColumns().setAll(associated_part_id_col, associated_part_name_col, associated_part_inventory_col, associated_part_price_col);
@@ -76,12 +73,6 @@ public class AddProductController {
 
         InventoryManagementController inventoryManagementController = loader.getController();
 
-        //TODO are these two lines necessary?
-        inventoryManagementController.updatePartsTable();
-        inventoryManagementController.updateProductsTable();
-
-        System.out.println("Switching to InventoryManagement");
-        System.out.println("InventoryManagementController.partsTable.getItems() = " + inventoryManagementController.partsTable.getItems());
         Scene inventoryManagementScene = new Scene(inventoryManagementParent);
 
         Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
@@ -95,36 +86,23 @@ public class AddProductController {
         if(product != null){//add to products list
             String msg = successLabel.getText();
             successLabel.setText(msg + "Product created successfully\n");
+            errorLabel.setText("");
             saveProduct(product);
         } else{
-            System.out.println("Invalid product");
+            // invalid product
+            successLabel.setText("");
         }
-    }
-
-    public InventoryManagementController getInventoryManagementController() throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("InventoryManagement.fxml"));
-        Parent inventoryManagementParent = loader.load();
-        InventoryManagementController inventoryManagementController = loader.getController();
-        return inventoryManagementController;
     }
 
     public Product getProduct(){
         StringBuilder sb = new StringBuilder();
         Product product = null;
         errorLabel.setText("");
-        int id_=0, stock_=0, max_=0, min_=0, machineID_=0;
-        String name_, companyName_;
+        int id_=0, stock_=0, max_=0, min_=0;
+        String name_;
         double price_=0.0;
 
         name_ = name.getText();
-        try {
-            id_ = Integer.parseInt(id.getText());
-            if(id_< 0) throw new NumberFormatException();
-        }
-        catch(NumberFormatException e) {
-            sb.append("ID must be a positive integer.\n");
-        }
         try {
             stock_ = Integer.parseInt(inv.getText());
             if(stock_ < 0) throw new NumberFormatException();
@@ -153,22 +131,38 @@ public class AddProductController {
         catch(NumberFormatException e) {
             sb.append("Min must be a positive integer.\n");
         }
-        errorLabel.setText(sb.toString());
-        if(sb.toString().length() > 0){// remove success message after failure
-            successLabel.setText("");
+        try{
+            if(stock_ > max_){
+                sb.append("Inventory cannot exceed max.\n");
+            }
+            if(stock_ < min_){
+                sb.append("Inventory cannot be less than min.\n");
+            }
+            if(min_ > max_){
+                sb.append("Min cannot be less than max.\n");
+            }
         }
-
-        product = new Product(id_, name_, price_, stock_, min_, max_);
-        for (Part part : associatedPartsList){
-            product.addAssociatedPart(part);
+        catch(NullPointerException e){
+            //do nothing - something earlier failed and is already handled.
+        }
+        catch(Exception e){
+            System.out.println("Exception caught " + e);
+        }
+        errorLabel.setText(sb.toString());
+        if(sb.toString().length() > 0){ // some failure occurred
+            successLabel.setText("");// remove success message after failure
+        }
+        else {
+            product = new Product(id_, name_, price_, stock_, min_, max_);
+            for (Part part : associatedPartsList) {
+                product.addAssociatedPart(part);
+            }
         }
         return product;
     }
 
     public void saveProduct(Product product){
         inventory.addProduct(product);
-        System.out.println("Product added");
-        System.out.println("Current products list: " + inventory.getAllProducts());
     }
 
     public void addPart(){
@@ -186,7 +180,7 @@ public class AddProductController {
             }
         }
         catch(Exception e){
-            System.out.println("I caught this: " + e);
+            System.out.println("Exception caught: " + e);
         }
 
         associatedPartsList.add(partToAdd);
@@ -207,7 +201,7 @@ public class AddProductController {
             }
         }
         catch(Exception e){
-            System.out.println("I caught this: " + e);
+            System.out.println("Exception caught: " + e);
         }
 
         associatedPartsList.remove(partToRemove);
@@ -215,6 +209,9 @@ public class AddProductController {
 
     @FXML
     public void initialize() {
+        id.setDisable(true);
+        id.setText("Auto-Gen - Disabled");
+
         // 1. Initialize parts list
         FilteredList<Part> filteredData = new FilteredList<>(inventory.getAllParts(), p -> true);
 

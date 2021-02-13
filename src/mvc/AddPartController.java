@@ -23,6 +23,12 @@ public class AddPartController {
     @FXML
     private RadioButton inHouse, outsourced;
 
+    @FXML
+    public void initialize(){
+        id.setDisable(true);
+        id.setText("Auto-Gen - Disabled");
+    }
+
     public void navigateToInventoryManagement(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("InventoryManagement.fxml"));
@@ -30,12 +36,6 @@ public class AddPartController {
 
         InventoryManagementController inventoryManagementController = loader.getController();
 
-        //TODO are these two lines necessary?
-        inventoryManagementController.updatePartsTable();
-        inventoryManagementController.updateProductsTable();
-
-        System.out.println("Switching to InventoryManagement");
-        System.out.println("InventoryManagementController.partsTable.getItems() = " + inventoryManagementController.partsTable.getItems());
         Scene inventoryManagementScene = new Scene(inventoryManagementParent);
 
         Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
@@ -49,9 +49,10 @@ public class AddPartController {
         if(part != null){//add to parts list
             String msg = successLabel.getText();
             successLabel.setText(msg + "Part created successfully\n");
+            errorLabel.setText("");
             storePart(part);
         } else{
-            System.out.println("Invalid part");
+            // invalid part
         }
     }
 
@@ -74,13 +75,6 @@ public class AddPartController {
         double price_=0.0;
 
         name_ = name.getText();
-        try {
-            id_ = Integer.parseInt(id.getText());
-            if(id_< 0) throw new NumberFormatException();
-        }
-        catch(NumberFormatException e) {
-            sb.append("ID must be a positive integer.\n");
-        }
         try {
             stock_ = Integer.parseInt(inv.getText());
             if(stock_ < 0) throw new NumberFormatException();
@@ -109,6 +103,23 @@ public class AddPartController {
         catch(NumberFormatException e) {
             sb.append("Min must be a positive integer.\n");
         }
+        try{
+            if(stock_ > max_){
+                sb.append("Inventory cannot exceed max.\n");
+            }
+            if(stock_ < min_){
+                sb.append("Inventory cannot be less than min.\n");
+            }
+            if(min_ > max_){
+                sb.append("Min cannot be less than max.\n");
+            }
+        }
+        catch(NullPointerException e){
+            //do nothing - something earlier failed and will log out.
+        }
+        catch(Exception e) {
+            System.out.println("Exception caught " + e);
+        }
         if(inHouse.isSelected()){
             try {
                 machineID_ = Integer.parseInt(machineOrCompanyField.getText());
@@ -131,11 +142,13 @@ public class AddPartController {
         if(sb.toString().length() > 0){// remove success message after failure
             successLabel.setText("");
         }
+        else{
+            errorLabel.setText("");
+        }
         return part;
     }
 
     public void outsourcedSelected(){
-        System.out.println("Outsourced clicked");
         inHouse.setSelected(false);
         errorLabel.setText("");
         successLabel.setText("");
@@ -143,7 +156,6 @@ public class AddPartController {
     }
 
     public void inHouseSelected(){
-        System.out.println("In-House clicked");
         outsourced.setSelected(false);
         errorLabel.setText("");
         successLabel.setText("");

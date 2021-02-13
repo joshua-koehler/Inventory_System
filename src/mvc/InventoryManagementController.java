@@ -1,8 +1,6 @@
 package mvc;
 
 import javafx.application.Platform;
-import javafx.beans.property.SimpleListProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -54,7 +52,7 @@ public class InventoryManagementController {
 
         part_id_col.setCellValueFactory(new PropertyValueFactory<>("id"));
         part_name_col.setCellValueFactory(new PropertyValueFactory<>("name"));
-        part_inventory_col.setCellValueFactory(new PropertyValueFactory<>("inventory"));//should be "stock" test to verify
+        part_inventory_col.setCellValueFactory(new PropertyValueFactory<>("stock"));
         part_price_col.setCellValueFactory(new PropertyValueFactory<>("price"));
 
         partsTable.getColumns().setAll(part_id_col, part_name_col, part_inventory_col, part_price_col);
@@ -70,23 +68,10 @@ public class InventoryManagementController {
         prod_price_col.setCellValueFactory(new PropertyValueFactory<>("price"));
 
         productsTable.getColumns().setAll(prod_id_col, prod_name_col, prod_inventory_col, prod_price_col);
-
     }
 
     public void addPartToInventory(Part part){
-        System.out.println("Part added");
         inventory.addPart(part);
-        System.out.println("Current parts list: " + inventory.getAllParts());
-    }
-
-    public void updatePartsTable(){
-        System.out.println("Update parts table called but commented out.");
-        //partsTable.setItems(inventory.getAllParts());
-    }
-
-    public void updateProductsTable(){
-        System.out.println("Update products table called but commented out.");
-        //productsTable.setItems(inventory.getAllProducts());
     }
 
     public void exit() {
@@ -120,7 +105,7 @@ public class InventoryManagementController {
             }
         }
         catch(Exception e){
-            System.out.println("I caught this: " + e);
+            System.out.println("Exception caught: " + e);
         }
         int index = allParts.indexOf(partToModify);
 
@@ -237,6 +222,7 @@ public class InventoryManagementController {
         ObservableList<Product> selectedProducts, allProducts;
         selectedProducts = productsTable.getSelectionModel().getSelectedItems();
         if(selectedProducts.isEmpty()){
+            successLabel.setText("");
             errorLabel.setText("Please select a product to modify");
             return;
         }
@@ -248,7 +234,7 @@ public class InventoryManagementController {
             }
         }
         catch(Exception e){
-            System.out.println("I caught this: " + e);
+            System.out.println("Exception caught: " + e);
         }
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("ModifyProduct.fxml"));
@@ -269,17 +255,22 @@ public class InventoryManagementController {
         ObservableList<Product> selectedProducts;
         selectedProducts = productsTable.getSelectionModel().getSelectedItems();
 
-        boolean isSuccesful = false;
+        boolean isSuccessful = false;
         try{
             for (Product product : selectedProducts) {
-                isSuccesful = inventory.deleteProduct(product);
+                isSuccessful = inventory.deleteProduct(product);
             }
         }
-        catch(Exception e){//TODO I could make a custom exception in model.inventory.deleteProduct and handle it here
+        catch(Exception e){
             //do nothing when last element is deleted
         }
-        if(!isSuccesful){
+        if(!isSuccessful){
             errorLabel.setText("Cannot delete a product with associated parts.");
+            successLabel.setText("");
+        }
+        else {
+            errorLabel.setText("");
+            successLabel.setText("Deleted successfully.");
         }
     }
 }
