@@ -7,11 +7,12 @@
  */
 
 package mvc;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class Product {
 
-    protected ObservableList<Part> associatedParts;
+    protected ObservableList<Part> associatedParts = FXCollections.observableArrayList();
     private int id;
     private String name;
     private double price;

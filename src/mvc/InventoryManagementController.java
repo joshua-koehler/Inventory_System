@@ -23,8 +23,10 @@ import java.io.IOException;
 
 public class InventoryManagementController {
     @FXML
-    private static TableColumn<Part, String> part_id_col, part_name_col, part_inventory_col, part_price_col,
-                        prod_id_col, prod_name_col, prod_inventory_col, prod_price_col;
+    private static TableColumn<Part, String> part_id_col, part_name_col, part_inventory_col, part_price_col;
+
+    @FXML
+    private static TableColumn<Product, String> prod_id_col, prod_name_col, prod_inventory_col, prod_price_col;
 
     @FXML
     public TableView<Part> partsTable = new TableView<>();
@@ -52,10 +54,22 @@ public class InventoryManagementController {
 
         part_id_col.setCellValueFactory(new PropertyValueFactory<>("id"));
         part_name_col.setCellValueFactory(new PropertyValueFactory<>("name"));
-        part_inventory_col.setCellValueFactory(new PropertyValueFactory<>("inventory"));
+        part_inventory_col.setCellValueFactory(new PropertyValueFactory<>("inventory"));//should be "stock" test to verify
         part_price_col.setCellValueFactory(new PropertyValueFactory<>("price"));
 
         partsTable.getColumns().setAll(part_id_col, part_name_col, part_inventory_col, part_price_col);
+
+        prod_id_col = new TableColumn<>("Part ID");
+        prod_name_col = new TableColumn<>("Name");
+        prod_inventory_col = new TableColumn<>("Inventory");
+        prod_price_col = new TableColumn<>("Price/Cost");
+
+        prod_id_col.setCellValueFactory(new PropertyValueFactory<>("id"));
+        prod_name_col.setCellValueFactory(new PropertyValueFactory<>("name"));
+        prod_inventory_col.setCellValueFactory(new PropertyValueFactory<>("stock"));
+        prod_price_col.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        productsTable.getColumns().setAll(prod_id_col, prod_name_col, prod_inventory_col, prod_price_col);
 
     }
 
@@ -71,7 +85,8 @@ public class InventoryManagementController {
     }
 
     public void updateProductsTable(){
-        productsTable.setItems(inventory.getAllProducts());
+        System.out.println("Update products table called but commented out.");
+        //productsTable.setItems(inventory.getAllProducts());
     }
 
     public void exit() {
@@ -126,6 +141,7 @@ public class InventoryManagementController {
 
     @FXML
     public void initialize(){
+        // 1. Initialize parts list
         FilteredList<Part> filteredData = new FilteredList<>(inventory.getAllParts(), p -> true);
 
         // 2. Set the filter Predicate whenever the filter changes.
@@ -157,6 +173,40 @@ public class InventoryManagementController {
         sortedData.comparatorProperty().bind(partsTable.comparatorProperty());
         // 5. Add sorted (and filtered) data to the table.
         partsTable.setItems(sortedData);
+
+
+        // 1. Initialize product list
+        FilteredList<Product> filteredProductData = new FilteredList<>(inventory.getAllProducts(), p -> true);
+
+        // 2. Set the filter Predicate whenever the filter changes.
+        productSearch.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredProductData.setPredicate(myObject -> {
+                // If filter text is empty, display all persons.
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                // Compare first name and last name field in your object with filter.
+                String lowerCaseFilter = newValue.toLowerCase();
+
+                if (String.valueOf(myObject.getName()).toLowerCase().contains(lowerCaseFilter)) {
+                    return true;// Filter matches first name.
+
+                } else if (String.valueOf(myObject.getId()).toLowerCase().contains(lowerCaseFilter)) {
+                    return true; // Filter matches last name.
+                }
+
+                return false; // Does not match.
+            });
+        });
+
+        // 3. Wrap the FilteredList in a SortedList.
+        SortedList<Product> sortedProductData = new SortedList<>(filteredProductData);
+
+        // 4. Bind the SortedList comparator to the TableView comparator.
+        sortedProductData.comparatorProperty().bind(productsTable.comparatorProperty());
+        // 5. Add sorted (and filtered) data to the table.
+        productsTable.setItems(sortedProductData);
     }
 
     public void deletePart(){
@@ -184,10 +234,26 @@ public class InventoryManagementController {
     }
 
     public void navigateToModifyProduct(ActionEvent event) throws IOException{
-        // TODO
+        Parent addProductParent = FXMLLoader.load(getClass().getResource("ModifyProduct.fxml"));
+        Scene addProductScene = new Scene(addProductParent);
+
+        Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+        window.setScene(addProductScene);
+        window.show();
     }
 
     public void deleteProduct(ActionEvent event) throws IOException{
-        // TODO
+        ObservableList<Product> selectedProducts;
+        selectedProducts = productsTable.getSelectionModel().getSelectedItems();
+
+        try{
+            for (Product product : selectedProducts) {
+                inventory.deleteProduct(product);
+            }
+        }
+        catch(Exception e){
+            //do nothing when last element is deleted
+        }
     }
 }

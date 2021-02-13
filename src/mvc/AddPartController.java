@@ -30,8 +30,9 @@ public class AddPartController {
 
         InventoryManagementController inventoryManagementController = loader.getController();
 
+        //TODO are these two lines necessary?
         inventoryManagementController.updatePartsTable();
-        //inventoryManagementController.updateProductsTable();
+        inventoryManagementController.updateProductsTable();
 
         System.out.println("Switching to InventoryManagement");
         System.out.println("InventoryManagementController.partsTable.getItems() = " + inventoryManagementController.partsTable.getItems());
