@@ -90,5 +90,6 @@
          </font>
       </Label>
       <Label fx:id="errorLabel" layoutX="58.0" layoutY="444.0" textFill="RED" />
+      <Label fx:id="successLabel" layoutX="58.0" layoutY="444.0" textFill="#0be144" />
    </children>
 </AnchorPane>

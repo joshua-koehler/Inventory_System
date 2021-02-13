@@ -130,12 +130,13 @@ public class Inventory {
     /**
      * @param productToDelete
      */
-    public void deleteProduct(Product productToDelete) {
+    public boolean deleteProduct(Product productToDelete) {
         if(productToDelete.getAllAssociatedParts().size() > 0){
             System.out.println("Cannot delete product with associated parts");
-            return;
+            return false;
         }
         allProducts.remove(productToDelete);
+        return true;
     }
 
     /**

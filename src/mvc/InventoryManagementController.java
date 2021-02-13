@@ -38,7 +38,7 @@ public class InventoryManagementController {
     public static final Inventory inventory = new Inventory();
 
     @FXML
-    private Label errorLabel;
+    public Label errorLabel, successLabel;
 
     @FXML
     private TextField partSearch = new TextField();
@@ -234,10 +234,32 @@ public class InventoryManagementController {
     }
 
     public void navigateToModifyProduct(ActionEvent event) throws IOException{
-        Parent addProductParent = FXMLLoader.load(getClass().getResource("ModifyProduct.fxml"));
+        ObservableList<Product> selectedProducts, allProducts;
+        selectedProducts = productsTable.getSelectionModel().getSelectedItems();
+        if(selectedProducts.isEmpty()){
+            errorLabel.setText("Please select a product to modify");
+            return;
+        }
+
+        Product productToModify = null;
+        try {
+            for (Product product : selectedProducts) {
+                productToModify = product;
+            }
+        }
+        catch(Exception e){
+            System.out.println("I caught this: " + e);
+        }
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("ModifyProduct.fxml"));
+        Parent addProductParent = loader.load();
+
+        ModifyProductController modifyProductController = loader.getController();
+        modifyProductController.setProductToModify(productToModify);
+
         Scene addProductScene = new Scene(addProductParent);
 
-        Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
 
         window.setScene(addProductScene);
         window.show();
@@ -247,13 +269,17 @@ public class InventoryManagementController {
         ObservableList<Product> selectedProducts;
         selectedProducts = productsTable.getSelectionModel().getSelectedItems();
 
+        boolean isSuccesful = false;
         try{
             for (Product product : selectedProducts) {
-                inventory.deleteProduct(product);
+                isSuccesful = inventory.deleteProduct(product);
             }
         }
-        catch(Exception e){
+        catch(Exception e){//TODO I could make a custom exception in model.inventory.deleteProduct and handle it here
             //do nothing when last element is deleted
+        }
+        if(!isSuccesful){
+            errorLabel.setText("Cannot delete a product with associated parts.");
         }
     }
 }
