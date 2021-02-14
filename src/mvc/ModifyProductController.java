@@ -182,7 +182,6 @@ public class ModifyProductController {
             System.out.println("Exception caught " + e);
         }
         errorLabel.setText(sb.toString());
-        System.out.println("Error label = " + sb.toString());
         if(sb.toString().length() > 0){// remove success message after failure
             successLabel.setText("");
             return null;
