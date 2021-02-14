@@ -12,6 +12,9 @@ package mvc;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+/**
+ * Stores all part and product data and facilitates CRUD operations.
+ */
 public class Inventory {
     public static int partId = 0;
     public static int productId = 0;

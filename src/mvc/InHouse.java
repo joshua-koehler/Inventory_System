@@ -8,6 +8,9 @@
 
 package mvc;
 
+/**
+ * InHouse class extends Part class with additional MachineID integer field.
+ */
 public class InHouse extends Part {
     protected int machineId;
 

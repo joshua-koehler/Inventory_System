@@ -13,6 +13,9 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+/**
+ * Facilitates the modification of a selected parts from the inventory.
+ */
 import static mvc.InventoryManagementController.inventory;
 
 public class ModifyPartController {
@@ -28,12 +31,19 @@ public class ModifyPartController {
     private Part partToModify;
     private int index;
 
+    /**
+     * @param index of part in inventory.allParts
+     * @param partToModify loaded in to display to user and allow updating
+     */
     public void setPartToModify(int index, Part partToModify) {
         this.partToModify = partToModify;
         this.index = index;
         populateFields();
     }
 
+    /**
+     * Reads in data from this.partToModify and populates UI fields.
+     */
     public void populateFields(){
         id.setText(String.valueOf(partToModify.getId()));
         id.setDisable(true);
@@ -59,6 +69,12 @@ public class ModifyPartController {
         }
     }
 
+    /**
+     * Updates part per user modifications to the fields and redirects
+     * to the main page.
+     * @param event
+     * @throws IOException
+     */
     public void modifyPartAndNavigateToInventoryManagement(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("InventoryManagement.fxml"));
@@ -66,9 +82,9 @@ public class ModifyPartController {
 
         InventoryManagementController inventoryManagementController = loader.getController();
 
-        partToModify = getPart();
-        if(partToModify == null) return; //error message will be displayed
-        inventory.updatePart(index, partToModify);
+        Part modifiedPart = getPart();
+        if(modifiedPart == null) return; //error message will be displayed
+        inventory.updatePart(index, modifiedPart);
         inventoryManagementController.errorLabel.setText("");
         inventoryManagementController.successLabel.setText("Part modified successfully");
 
@@ -80,6 +96,11 @@ public class ModifyPartController {
         window.show();
     }
 
+    /**
+     * Redirects to main page without modifying part.
+     * @param event
+     * @throws IOException
+     */
     public void navigateToInventoryManagement(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("InventoryManagement.fxml"));
@@ -98,6 +119,11 @@ public class ModifyPartController {
         window.show();
     }
 
+    /**
+     * Parses fields and displays an error message for each invalid field.
+     * Will return null if there was an error.
+     * @return part generated from user-modified fields.
+     */
     public Part getPart(){
         StringBuilder sb = new StringBuilder();
         Part part = null;
@@ -107,6 +133,9 @@ public class ModifyPartController {
         double price_=0.0;
 
         name_ = name.getText();
+        if(name_.length() == 0){
+            sb.append("Name required.\n");
+        }
         try {
             id_ = partToModify.getId();
         }
@@ -173,6 +202,9 @@ public class ModifyPartController {
         }
         else if(outsourced.isSelected()){
             companyName_ = machineOrCompanyField.getText();
+            if(companyName_.length() == 0){
+                sb.append("Company name required.\n");
+            }
             if(sb.toString().length() == 0) {// no error
                 part = new Outsourced(id_, name_, price_, stock_, min_, max_, companyName_);
                 part.setId(id_);//override autogenerate
@@ -181,11 +213,14 @@ public class ModifyPartController {
         errorLabel.setText(sb.toString());
         if(sb.toString().length() > 0){// remove success message after failure
             successLabel.setText("");
+            return null; // return failure to add part
         }
-        inventory.partId--;//reset autogenerate increment
         return part;
     }
 
+    /**
+     * Select Outsourced radio toggle.
+     */
     public void outsourcedSelected(){
         inHouse.setSelected(false);
         outsourced.setSelected(true);
@@ -194,6 +229,9 @@ public class ModifyPartController {
         machineOrCompanyLabel.setText("Company Name");
     }
 
+    /**
+     * Select InHouse radio toggle.
+     */
     public void inHouseSelected(){
         outsourced.setSelected(false);
         inHouse.setSelected(true);

@@ -10,15 +10,16 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Optional;
 
+/**
+ * Controller for main page, manages data via instance of mvc.Inventory class.
+ */
 public class InventoryManagementController {
     @FXML
     private static TableColumn<Part, String> part_id_col, part_name_col, part_inventory_col, part_price_col;
@@ -44,6 +45,9 @@ public class InventoryManagementController {
     @FXML
     private TextField productSearch = new TextField();
 
+    /**
+     * Constructor - used to set up partsTable and productsTable to display data.
+     */
     public InventoryManagementController(){
         part_id_col = new TableColumn<>("Part ID");
         part_name_col = new TableColumn<>("Name");
@@ -70,14 +74,25 @@ public class InventoryManagementController {
         productsTable.getColumns().setAll(prod_id_col, prod_name_col, prod_inventory_col, prod_price_col);
     }
 
-    public void addPartToInventory(Part part){
+    /**
+     * @param part
+     */
+    public static void addPartToInventory(Part part){
         inventory.addPart(part);
     }
 
+    /**
+     * Exits the program.
+     */
     public void exit() {
         Platform.exit();
     }
 
+    /**
+     * Redirects to AddPart.fxml view.
+     * @param event
+     * @throws IOException
+     */
     public void navigateToAddPart(ActionEvent event) throws IOException {
         Parent addPartParent = FXMLLoader.load(getClass().getResource("AddPart.fxml"));
         Scene addPartScene = new Scene(addPartParent);
@@ -88,6 +103,11 @@ public class InventoryManagementController {
         window.show();
     }
 
+    /**
+     * Redirects to ModifyPart.fxml view.
+     * @param event
+     * @throws IOException
+     */
     @FXML
     public void navigateToModifyPart(ActionEvent event) throws IOException {
         ObservableList<Part> selectedParts, allParts;
@@ -124,8 +144,15 @@ public class InventoryManagementController {
         window.show();
     }
 
+    /**
+     * Special Java FXML method.
+     * Used here to set table placeholders and to set up filtered searching for parts and products Tables.
+     */
     @FXML
     public void initialize(){
+        partsTable.setPlaceholder(new Label("No parts found."));
+        productsTable.setPlaceholder(new Label("No products found."));
+
         // 1. Initialize parts list
         FilteredList<Part> filteredData = new FilteredList<>(inventory.getAllParts(), p -> true);
 
@@ -194,9 +221,49 @@ public class InventoryManagementController {
         productsTable.setItems(sortedProductData);
     }
 
+
+    /**
+     * Displays dialog to confirm operation on an object.
+     * @param objectName
+     * @param operationName
+     * @return userConfirmed boolean - true if user confirmed
+     */
+    public static boolean userConfirm(String objectName, String operationName){
+        String title = operationName + " " + objectName;
+        String header = "This operation will " + operationName.toLowerCase() + " the selected " + objectName.toLowerCase();
+        String question = "Is that your intention?";
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(question);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            return true;
+            // ... user chose OK
+        } else {
+            return false;
+            // ... user chose CANCEL or closed the dialog
+        }
+    }
+
+    /**
+     * Deletes selected part on user confirm.
+     */
     public void deletePart(){
+        errorLabel.setText("");
+        successLabel.setText("");
         ObservableList<Part> selectedParts;
         selectedParts = partsTable.getSelectionModel().getSelectedItems();
+
+        if(selectedParts.isEmpty()){
+            errorLabel.setText("Please select a part to delete.");
+            return;
+        }
+
+        String objectName = "Part";
+        String operationName = "Delete";
+        if(!userConfirm(objectName, operationName)) return; // user cancels delete
 
         try{
             for (Part part : selectedParts) {
@@ -208,6 +275,11 @@ public class InventoryManagementController {
         }
     }
 
+    /**
+     * Navigates to AddProduct.fxml on ActionEvent.
+     * @param event
+     * @throws IOException
+     */
     public void navigateToAddProduct(ActionEvent event) throws IOException {
         Parent addProductParent = FXMLLoader.load(getClass().getResource("AddProduct.fxml"));
         Scene addProductScene = new Scene(addProductParent);
@@ -218,6 +290,11 @@ public class InventoryManagementController {
         window.show();
     }
 
+    /**
+     * Navigates to ModifyProduct.fxml on ActionEvent, sending selected product to ModifyProductController.
+     * @param event
+     * @throws IOException
+     */
     public void navigateToModifyProduct(ActionEvent event) throws IOException{
         ObservableList<Product> selectedProducts, allProducts;
         selectedProducts = productsTable.getSelectionModel().getSelectedItems();
@@ -251,9 +328,25 @@ public class InventoryManagementController {
         window.show();
     }
 
+    /**
+     * Deletes selected product upon user confirmation.
+     * @param event
+     * @throws IOException
+     */
     public void deleteProduct(ActionEvent event) throws IOException{
+        errorLabel.setText("");
+        successLabel.setText("");
         ObservableList<Product> selectedProducts;
         selectedProducts = productsTable.getSelectionModel().getSelectedItems();
+
+        if(selectedProducts.isEmpty()){
+            errorLabel.setText("Please select a product to delete.");
+            return;
+        }
+
+        String objectName = "Product";
+        String operationName = "Delete";
+        if(!userConfirm(objectName, operationName)) return; // user cancels delete
 
         boolean isSuccessful = false;
         try{

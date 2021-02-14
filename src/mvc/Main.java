@@ -1,3 +1,4 @@
+
 package mvc;
 
 import javafx.application.Application;
@@ -6,8 +7,26 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * Main class bootstraps JavaFX application.
+ */
+
+/**
+ * FUTURE ENHANCEMENT
+ * Currently there are separate views and controllers for modify and add operations for both part and product.
+ * It is possible to reduce the code by merging these into a single view for each.
+ * This could be accomplished through creating an abstract view and/or controller and implementing this.
+ * Alternatively, a simple dynamic modification of the DOM via a single controller would be sufficient and more elegant.
+ */
 public class Main extends Application {
 
+    /**
+     * The main entry point for all JavaFX applications.
+     * The start method is called after the init method has returned, and after the system is ready for the application to begin running.
+     * Used here to load the main page.
+     * @param primaryStage
+     * @throws Exception
+     */
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("InventoryManagement.fxml"));
@@ -16,24 +35,11 @@ public class Main extends Application {
         primaryStage.show();
     }
 
+    /**
+     * Launch application.
+     * @param args
+     */
     public static void main(String[] args) {
-        /*
-        Part part1 = new InHouse(1, "part1", 23.23, 13, 1, 10, 1131);
-        Part part2 = new Outsourced(2, "part2", 104.44, 4, 2, 12, "Outsource Co.");
-        Part part3 = new Outsourced(3, "part3", 102.22, 2, 2, 12, "Outsource Co.");
-        Product prod3 = new Product(3, "prod1", 103.33, 3, 3, 13);
-        Product prod4 = new Product(5, "prod2", 105.55, 5, 5, 15);
-
-        Inventory inventory = new Inventory();
-        inventory.addPart(part1);
-        inventory.addPart(part2);
-        inventory.addPart(part3);
-
-        inventory.addProduct(prod3);
-        inventory.addProduct(prod4);
-
-         */
-
         launch(args);
     }
 }

@@ -17,7 +17,11 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 import static mvc.InventoryManagementController.inventory;
+import static mvc.InventoryManagementController.userConfirm;
 
+/**
+ * Facilitates the modification of a selected product from the inventory.
+ */
 public class ModifyProductController {
     @FXML
     private TextField id, name, inv, price, max, min, partSearch;
@@ -43,12 +47,18 @@ public class ModifyProductController {
     private Product productToModify;
     private int index;
 
+    /**
+     * @param productToModify loaded in to display to user and allow updating
+     */
     public void setProductToModify(Product productToModify) {
         this.productToModify = productToModify;
         this.index = inventory.getAllProducts().indexOf(productToModify);
         populateFields();
     }
 
+    /**
+     * loads in data from this.productToModify into input fields
+     */
     public void populateFields() {
         id.setDisable(true);
         id.setText(String.valueOf(productToModify.getId()));
@@ -60,6 +70,12 @@ public class ModifyProductController {
         associatedPartsList.addAll(this.productToModify.getAllAssociatedParts());
     }
 
+    /**
+     * Updates product based on user-edits to input fields, saves to the inventory, and redirects user to main page.
+     * If any input fields are invalid an error message will be displayed and the user will remain on the page.
+     * @param event - ActionEvent from user click
+     * @throws IOException
+     */
     @FXML
     public void modifyProductAndNavigateToInventoryManagement(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
@@ -68,9 +84,9 @@ public class ModifyProductController {
 
         InventoryManagementController inventoryManagementController = loader.getController();
 
-        productToModify = getProduct();
-        if(productToModify == null) return; //error message will be displayed
-        inventoryManagementController.inventory.updateProduct(index, productToModify);
+        Product modifiedProduct = getProduct();
+        if(modifiedProduct == null) return; //error message will be displayed
+        inventoryManagementController.inventory.updateProduct(index, modifiedProduct);
         inventoryManagementController.successLabel.setText("Product modified successfully");
 
         Scene inventoryManagementScene = new Scene(inventoryManagementParent);
@@ -81,6 +97,11 @@ public class ModifyProductController {
         window.show();
     }
 
+    /**
+     * Navigates to main page without updating the product.
+     * @param event - ActionEvent from user click
+     * @throws IOException
+     */
     @FXML
     public void navigateToInventoryManagement(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
@@ -97,6 +118,11 @@ public class ModifyProductController {
         window.show();
     }
 
+    /**
+     * Returns null and displays error messages if any input fields are invalid.
+     * Otherwise:
+     * @return product created from parsed input fields.
+     */
     public Product getProduct(){
         StringBuilder sb = new StringBuilder();
         Product product = null;
@@ -106,6 +132,9 @@ public class ModifyProductController {
         double price_=0.0;
 
         name_ = name.getText();
+        if(name_.length() == 0){
+            sb.append("Name required.\n");
+        }
         id_ = productToModify.getId();
         try {
             stock_ = Integer.parseInt(inv.getText());
@@ -153,6 +182,7 @@ public class ModifyProductController {
             System.out.println("Exception caught " + e);
         }
         errorLabel.setText(sb.toString());
+        System.out.println("Error label = " + sb.toString());
         if(sb.toString().length() > 0){// remove success message after failure
             successLabel.setText("");
             return null;
@@ -164,11 +194,14 @@ public class ModifyProductController {
         return product;
     }
 
+    /**
+     * Adds selected part from partsTable to associatedPartsTable for this product.
+     */
     public void addPart(){
         ObservableList<Part> selectedParts;
         selectedParts = partsTable.getSelectionModel().getSelectedItems();
         if(selectedParts.isEmpty()){
-            errorLabel.setText("Please select a part to modify");
+            errorLabel.setText("Please select a part to add");
             return;
         }
 
@@ -185,13 +218,21 @@ public class ModifyProductController {
         associatedPartsList.add(partToAdd);
     }
 
+    /**
+     * Removes selected part from associatedPartsTable for this product.
+     * Prompts user to confirm.
+     */
     public void removePart(){
         ObservableList<Part> selectedParts;
         selectedParts = associatedPartsTable.getSelectionModel().getSelectedItems();
         if(selectedParts.isEmpty()){
-            errorLabel.setText("Please select a part to modify");
+            errorLabel.setText("Please select a part to remove");
             return;
         }
+
+        String objectName = "Part";
+        String operationName = "Remove";
+        if(!userConfirm(objectName, operationName)) return; // user cancels remove
 
         Part partToRemove = null;
         try {
@@ -206,8 +247,15 @@ public class ModifyProductController {
         associatedPartsList.remove(partToRemove);
     }
 
+    /**
+     * Special Java FXML method.
+     * Used to set up tables to display data and for filtered searching on partsTable.
+     */
     @FXML
     public void initialize() {
+        partsTable.setPlaceholder(new Label("No parts found."));
+        associatedPartsTable.setPlaceholder(new Label("No associated parts added."));
+
         part_id_col = new TableColumn<>("Part ID");
         part_name_col = new TableColumn<>("Name");
         part_inventory_col = new TableColumn<>("Inventory");

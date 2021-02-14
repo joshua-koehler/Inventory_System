@@ -18,6 +18,11 @@ import java.io.IOException;
 
 import static mvc.InventoryManagementController.inventory;
 
+import static mvc.InventoryManagementController.userConfirm;
+
+/**
+ * Facilitates the adding of products to the inventory.
+ */
 public class AddProductController {
     @FXML
     private TextField id, name, inv, price, max, min, partSearch;
@@ -40,6 +45,9 @@ public class AddProductController {
     @FXML
     private ObservableList<Part> associatedPartsList = FXCollections.observableArrayList();
 
+    /**
+     * Constructor.  Initializes partsTable and associatedParts table fields for UI display.
+     */
     public AddProductController(){
         part_id_col = new TableColumn<>("Part ID");
         part_name_col = new TableColumn<>("Name");
@@ -66,6 +74,11 @@ public class AddProductController {
         associatedPartsTable.getColumns().setAll(associated_part_id_col, associated_part_name_col, associated_part_inventory_col, associated_part_price_col);
     }
 
+    /**
+     * Returns to main menu without adding a product.
+     * @param event
+     * @throws IOException
+     */
     public void navigateToInventoryManagement(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("InventoryManagement.fxml"));
@@ -81,19 +94,58 @@ public class AddProductController {
         window.show();
     }
 
-    public void saveProduct() throws IOException {
+    /**
+     * Returns to the main menu, displaying a success message upon redirect.
+     * @param event - ActionEvent from user click.
+     * @param msg - message to be displayed in the main menu upon redirect.
+     * @throws IOException
+     */
+    public void navigateToInventoryManagementWithSuccessMessage(ActionEvent event, String msg) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("InventoryManagement.fxml"));
+        Parent inventoryManagementParent = loader.load();
+
+        InventoryManagementController inventoryManagementController = loader.getController();
+
+        inventoryManagementController.successLabel.setText(msg);
+
+        Scene inventoryManagementScene = new Scene(inventoryManagementParent);
+
+        Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
+
+        window.setScene(inventoryManagementScene);
+        window.show();
+    }
+
+    /**
+     * Saves product in inventory if input fields are valid.
+     * Otherwise does nothing and passively shows error messages already displayed by another method.
+     * @param event
+     * @throws IOException
+     */
+    public void saveProduct(ActionEvent event) throws IOException {
         Product product = getProduct();
         if(product != null){//add to products list
-            String msg = successLabel.getText();
-            successLabel.setText(msg + "Product created successfully\n");
+            String msg = "Product created successfully\n";
             errorLabel.setText("");
             saveProduct(product);
+            navigateToInventoryManagementWithSuccessMessage(event, msg);
         } else{
             // invalid product
             successLabel.setText("");
         }
     }
 
+    /**
+     * RUNTIME ERROR
+     * For the below method getProduct, a NumberFormatException was thrown when any of the numerical fields were provided with non-numerical input.
+     * This exception was thrown when trying Integer.parseInt() on the input string.
+     * To correct this, the exception is now elegantly handled in a try catch block, with a specific and helpful error message appended for each exception.
+     */
+    /**
+     * Parses input fields and displays an error message for each invalid field.
+     * @return product from input fields or null if any input fields are invalid.
+     */
     public Product getProduct(){
         StringBuilder sb = new StringBuilder();
         Product product = null;
@@ -103,6 +155,9 @@ public class AddProductController {
         double price_=0.0;
 
         name_ = name.getText();
+        if(name_.length() == 0){
+            sb.append("Name required.\n");
+        }
         try {
             stock_ = Integer.parseInt(inv.getText());
             if(stock_ < 0) throw new NumberFormatException();
@@ -161,15 +216,23 @@ public class AddProductController {
         return product;
     }
 
+    /**
+     * Adds product to inventory.
+     * @param product
+     */
     public void saveProduct(Product product){
         inventory.addProduct(product);
     }
 
+    /**
+     * Adds selected part from partsList to associatedPartsList
+     * Displays error if no part is selected.
+     */
     public void addPart(){
         ObservableList<Part> selectedParts;
         selectedParts = partsTable.getSelectionModel().getSelectedItems();
         if(selectedParts.isEmpty()){
-            errorLabel.setText("Please select a part to modify");
+            errorLabel.setText("Please select a part to add.");
             return;
         }
 
@@ -186,13 +249,22 @@ public class AddProductController {
         associatedPartsList.add(partToAdd);
     }
 
+    /**
+     * Removes part from associatedPartsList.
+     * Prompts user to confirm action.
+     * Displays error if no part is selected.
+     */
     public void removePart(){
         ObservableList<Part> selectedParts;
         selectedParts = associatedPartsTable.getSelectionModel().getSelectedItems();
         if(selectedParts.isEmpty()){
-            errorLabel.setText("Please select a part to modify");
+            errorLabel.setText("Please select a part to remove");
             return;
         }
+
+        String objectName = "Part";
+        String operationName = "Remove";
+        if(!userConfirm(objectName, operationName)) return; // user cancels remove
 
         Part partToRemove = null;
         try {
@@ -207,8 +279,17 @@ public class AddProductController {
         associatedPartsList.remove(partToRemove);
     }
 
+    /**
+     * Special FXML method.
+     * Utilized here to set table items with a filtered search automatically.
+     * Also used to disable id input field and set empty search message / table placeholder message.
+     * A portion of this code is reused from a course resource.
+     */
     @FXML
     public void initialize() {
+        partsTable.setPlaceholder(new Label("No parts found."));
+        associatedPartsTable.setPlaceholder(new Label("No associated parts added."));
+
         id.setDisable(true);
         id.setText("Auto-Gen - Disabled");
 
@@ -242,6 +323,7 @@ public class AddProductController {
 
         // 4. Bind the SortedList comparator to the TableView comparator.
         sortedData.comparatorProperty().bind(partsTable.comparatorProperty());
+
         // 5. Add sorted (and filtered) data to the table.
         partsTable.setItems(sortedData);
 
@@ -250,7 +332,7 @@ public class AddProductController {
         FilteredList<Part> filteredAssociatedData = new FilteredList<>(associatedPartsList, p -> true);
 
         // 2. Set the filter Predicate whenever the filter changes.
-        // don't need a listener for this because no search
+        // Don't need a listener for this because no searching is being done.
 
         // 3. Wrap the FilteredList in a SortedList.
         SortedList<Part> sortedAssociatedData = new SortedList<>(filteredAssociatedData);
@@ -260,5 +342,4 @@ public class AddProductController {
         // 5. Add sorted (and filtered) data to the table.
         associatedPartsTable.setItems(sortedAssociatedData);
     }
-
 }
