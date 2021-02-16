@@ -10,6 +10,9 @@ package mvc;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+/**
+ * Product class contains a list of none, one, or many Part objects.
+ */
 public class Product {
 
     protected ObservableList<Part> associatedParts = FXCollections.observableArrayList();
@@ -20,6 +23,15 @@ public class Product {
     private int min;
     private int max;
 
+    /**
+     * Constructor sets all class variables except the associatedParts list.
+     * @param id
+     * @param name
+     * @param price
+     * @param stock
+     * @param min
+     * @param max
+     */
     public Product(int id, String name, double price, int stock, int min, int max) {
         this.id = id;
         this.name = name;

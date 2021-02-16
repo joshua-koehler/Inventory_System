@@ -13,11 +13,11 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+import static mvc.InventoryManagementController.inventory;
+
 /**
  * Facilitates the modification of a selected parts from the inventory.
  */
-import static mvc.InventoryManagementController.inventory;
-
 public class ModifyPartController {
     @FXML
     private TextField id, name, inv, price, max, min, machineOrCompanyField;

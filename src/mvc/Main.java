@@ -18,6 +18,10 @@ import javafx.stage.Stage;
  * This could be accomplished through creating an abstract view and/or controller and implementing this.
  * Alternatively, a simple dynamic modification of the DOM via a single controller would be sufficient and more elegant.
  */
+
+/**
+ * Main class extends Javafx Application class to enable running the GUI.
+ */
 public class Main extends Application {
 
     /**
@@ -35,6 +39,9 @@ public class Main extends Application {
         primaryStage.show();
     }
 
+    /**
+     * Javadoc files located in resources/Javadoc_files
+     */
     /**
      * Launch application.
      * @param args

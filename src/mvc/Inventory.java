@@ -11,6 +11,9 @@ package mvc;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+
+import java.util.function.Predicate;
 
 /**
  * Stores all part and product data and facilitates CRUD operations.
@@ -43,6 +46,32 @@ public class Inventory {
      */
     public void deletePart(Part partToDelete) {
         allParts.remove(partToDelete);
+    }
+
+    /**
+     * @param partId
+     * @return Part matching partId
+     */
+    public Part lookupPart(int partId){
+        for(Part part : allParts){
+            if(part.getId() == partId){
+                return part;
+            }
+        }
+        return null;
+    }
+    /**
+     * @param searchTerm
+     * @return returns a list of all parts containing the search term
+     */
+    public ObservableList lookupPart(String searchTerm) {
+        Predicate<Part> predicate = new Predicate<Part>() {
+            @Override
+            public boolean test(Part part) {
+                return part.getName().contains(searchTerm);
+            }
+        };
+        return new FilteredList<Part>(allParts, predicate);
     }
 
     /**
@@ -85,5 +114,31 @@ public class Inventory {
      */
     public ObservableList<Product> getAllProducts(){
         return allProducts;
+    }
+
+    /**
+     * @param productId
+     * @return Product matching productId
+     */
+    public Product lookupProduct(int productId){
+        for(Product product : allProducts){
+            if(product.getId() == productId){
+                return product;
+            }
+        }
+        return null;
+    }
+    /**
+     * @param searchTerm
+     * @return returns a list of all products containing the search term
+     */
+    public ObservableList lookupProduct(String searchTerm) {
+        Predicate<Product> predicate = new Predicate<Product>() {
+            @Override
+            public boolean test(Product product) {
+                return product.getName().contains(searchTerm);
+            }
+        };
+        return new FilteredList<Product>(allProducts, predicate);
     }
 }
