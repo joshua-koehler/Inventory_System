@@ -141,8 +141,7 @@ public class AddProductController {
      * For the below method getProduct, a NumberFormatException was thrown when any of the numerical fields were provided with non-numerical input.
      * This exception was thrown when trying Integer.parseInt() on the input string.
      * To correct this, the exception is now elegantly handled in a try catch block, with a specific and helpful error message appended for each exception.
-     */
-    /**
+     *
      * Parses input fields and displays an error message for each invalid field.
      * @return product from input fields or null if any input fields are invalid.
      */

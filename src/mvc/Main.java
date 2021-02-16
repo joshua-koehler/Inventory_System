@@ -8,19 +8,13 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
- * Main class bootstraps JavaFX application.
- */
-
-/**
  * FUTURE ENHANCEMENT
  * Currently there are separate views and controllers for modify and add operations for both part and product.
  * It is possible to reduce the code by merging these into a single view for each.
  * This could be accomplished through creating an abstract view and/or controller and implementing this.
  * Alternatively, a simple dynamic modification of the DOM via a single controller would be sufficient and more elegant.
- */
-
-/**
- * Main class extends Javafx Application class to enable running the GUI.
+ *
+ * Main class extends Javafx Application class to bootstrap the JavaFX application, opening the GUI.
  */
 public class Main extends Application {
 
@@ -41,8 +35,6 @@ public class Main extends Application {
 
     /**
      * Javadoc files located in resources/Javadoc_files
-     */
-    /**
      * Launch application.
      * @param args
      */
